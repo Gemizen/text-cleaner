@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>テキスト一括整形・クリーニングツール【PRO完全版】</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --pro: #d97706;
+      --pro-hover: #b45309;
+      --pro-bg: #fffbeb;
+      --pro-border: #fcd34d;
+      --text: #1e293b;
+      --muted: #64748b;
+      --border: #e2e8f0;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Hiragino Sans", "Noto Sans JP", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 20px 16px 60px;
+    }
+    .container { max-width: 900px; margin: 0 auto; }
+    header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    .badge {
+      display: inline-block;
+      background: var(--pro);
+      color: #ffffff;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 3px 12px;
+      border-radius: 999px;
+      margin-bottom: 8px;
+    }
+    h1 { font-size: 22px; font-weight: 800; margin-bottom: 6px; }
+    .subtitle { font-size: 14px; color: var(--muted); }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+      margin-bottom: 18px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+    .pro-card {
+      background: var(--pro-bg);
+      border: 1px solid var(--pro-border);
+    }
+    .section-title {
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    textarea {
+      width: 100%;
+      height: 220px;
+      padding: 14px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 15px;
+      line-height: 1.6;
+      resize: vertical;
+      font-family: inherit;
+    }
+    textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
+    }
+    .stats-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 10px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .stats-nums span { font-weight: 700; color: var(--text); margin-right: 12px; }
+    .action-group { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    button {
+      cursor: pointer;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 9px 14px;
+      transition: all 0.15s;
+      font-family: inherit;
+    }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-primary:hover { background: var(--primary-hover); }
+    .btn-pro { background: var(--pro); color: #fff; }
+    .btn-pro:hover { background: var(--pro-hover); }
+    .btn-secondary { background: #f1f5f9; color: var(--text); border: 1px solid var(--border); }
+    .btn-secondary:hover { background: #e2e8f0; }
+    .btn-danger { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+    .btn-danger:hover { background: #fee2e2; }
+
+    .grid-btns {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(195px, 1fr));
+      gap: 10px;
+    }
+    .tool-btn {
+      background: #fff;
+      border: 1px solid var(--border);
+      color: var(--text);
+      text-align: left;
+      padding: 11px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .tool-btn:hover { border-color: var(--primary); background: #eff6ff; }
+    .tool-btn strong { font-size: 13.5px; }
+    .tool-btn small { font-size: 11px; color: var(--muted); font-weight: 400; }
+
+    /* マクロ設定エリア */
+    .macro-checks {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 12px;
+      background: #fff;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid var(--pro-border);
+    }
+    .macro-checks label {
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      cursor: pointer;
+    }
+
+    /* 定型文エリア */
+    .snippet-input-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+    .snippet-input-row input {
+      flex: 1;
+      min-width: 180px;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 13px;
+    }
+    .snippet-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .snippet-chip {
+      display: inline-flex;
+      align-items: center;
+      background: #fff;
+      border: 1px solid var(--pro-border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .snippet-chip button.insert-btn {
+      background: transparent;
+      color: #92400e;
+      padding: 7px 11px;
+      border-radius: 0;
+      font-size: 12.5px;
+    }
+    .snippet-chip button.insert-btn:hover { background: #fef3c7; }
+    .snippet-chip button.del-btn {
+      background: #fef2f2;
+      color: #dc2626;
+      padding: 7px 9px;
+      border-radius: 0;
+      font-size: 12px;
+      border-left: 1px solid var(--pro-border);
+    }
+
+    /* 履歴リスト */
+    .history-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: 180px;
+      overflow-y: auto;
+    }
+    .history-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #fff;
+      border: 1px solid var(--border);
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 12.5px;
+      gap: 10px;
+    }
+    .history-preview {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      color: var(--muted);
+      flex: 1;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #1e293b;
+      color: #fff;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+      z-index: 100;
+    }
+    .toast.show { opacity: 1; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <span class="badge">PRO 完全版（全機能解放済み）</span>
+    <h1>テキスト一括整形・クリーニングツール PRO</h1>
+    <p class="subtitle">一括マクロ実行・定型文パレット・変換履歴10件復元・ファイル出力対応</p>
+  </header>
+
+  <div class="card">
+    <div class="section-title">
+      <span>整形するテキスト</span>
+      <div class="action-group">
+        <button class="btn-secondary" onclick="downloadFile('txt')">TXT保存</button>
+        <button class="btn-secondary" onclick="downloadFile('csv')">CSV保存</button>
+      </div>
+    </div>
+    <textarea id="inputText" placeholder="ここにWeb・PDF・AIからコピーした文章を貼り付けてください..." oninput="updateStats()"></textarea>
+    <div class="stats-bar">
+      <div class="stats-nums">
+        文字数: <span id="charCount">0</span>
+        空白除き: <span id="noSpaceCount">0</span>
+        行数: <span id="lineCount">0</span>
+      </div>
+      <div class="action-group">
+        <button class="btn-danger" onclick="clearText()">クリア</button>
+        <button class="btn-primary" onclick="copyText()">結果をコピー</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRO機能1：一括プリセット（マクロ） -->
+  <div class="card pro-card">
+    <div class="section-title">
+      <span>⚡ 一括プリセット（複数整形を1クリック同時実行）</span>
+      <button class="btn-pro" onclick="runMacro()">チェックした処理を一括実行</button>
+    </div>
+    <div class="macro-checks">
+      <label><input type="checkbox" id="m_removeBreaks" checked> 不要な改行削除</label>
+      <label><input type="checkbox" id="m_cleanSpaces" checked> 連続空白・行頭空白整理</label>
+      <label><input type="checkbox" id="m_toHalfWidth" checked> 英数字・記号を半角統一</label>
+      <label><input type="checkbox" id="m_cleanEmptyLines"> 連続空行を1行に整理</label>
+      <label><input type="checkbox" id="m_dedupeLines"> 重複行削除</label>
+      <label><input type="checkbox" id="m_addBullets"> 先頭に「・」付与</label>
+    </div>
+    <div class="action-group">
+      <button class="btn-secondary" onclick="presetBlog()">プリセット①：ブログ・note本文整形</button>
+      <button class="btn-secondary" onclick="presetList()">プリセット②：リスト・タグ整理</button>
+    </div>
+  </div>
+
+  <!-- 基本単発整形 -->
+  <div class="card">
+    <div class="section-title">
+      <span>単発整形メニュー</span>
+    </div>
+    <div class="grid-btns">
+      <button class="tool-btn" onclick="applySingle('removeBreaks')">
+        <strong>不要な改行をすべて削除</strong>
+        <small>PDFやWebコピペの途中改行を連結</small>
+      </button>
+      <button class="tool-btn" onclick="applySingle('cleanEmptyLines')">
+        <strong>連続する空行を1行に整理</strong>
+        <small>スカスカになった行間をスッキリ整形</small>
+      </button>
+      <button class="tool-btn" onclick="applySingle('cleanSpaces')">
+        <strong>連続スペース・行頭空白削除</strong>
+        <small>インデント崩れや余分な空白を除去</small>
+      </button>
+      <button class="tool-btn" onclick="applySingle('toHalfWidth')">
+        <strong>英数字・記号を半角に統一</strong>
+        <small>全角のＡＢＣ・１２３を半角へ変換</small>
+      </button>
+      <button class="tool-btn" onclick="applySingle('dedupeLines')">
+        <strong>重複している行を一括削除</strong>
+        <small>リストやタグの被りを自動で整理</small>
+      </button>
+      <button class="tool-btn" onclick="applySingle('addBullets')">
+        <strong>各行の先頭に「・」を付与</strong>
+        <small>メモ書きを一瞬で箇条書きリスト化</small>
+      </button>
+    </div>
+  </div>
+
+  <!-- PRO機能2：定型文パレット -->
+  <div class="card pro-card">
+    <div class="section-title">
+      <span>📌 定型文・署名・ハッシュタグ ワンクリック挿入パレット（自動保存）</span>
+    </div>
+    <div class="snippet-input-row">
+      <input type="text" id="snippetTitle" placeholder="ボタン名（例：note署名 / 挨拶）">
+      <input type="text" id="snippetBody" placeholder="挿入するテキスト（例：最後までお読みいただきありがとうございます！）">
+      <button class="btn-pro" onclick="addSnippet()">追加</button>
+    </div>
+    <div class="snippet-list" id="snippetList"></div>
+  </div>
+
+  <!-- PRO機能3：変換履歴10件 -->
+  <div class="card">
+    <div class="section-title">
+      <span>🕒 変換履歴（過去10件の自動バックアップ）</span>
+      <button class="btn-secondary" onclick="clearHistory()">履歴クリア</button>
+    </div>
+    <div class="history-list" id="historyList">
+      <div style="font-size:12.5px; color:var(--muted);">整形を実行するとここに履歴が自動保存されます</div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast">完了しました</div>
+
+<script>
+  const textarea = document.getElementById('inputText');
+  const STORAGE_SNIPPETS = 'text_cleaner_pro_snippets_v1';
+  const STORAGE_HISTORY = 'text_cleaner_pro_history_v1';
+
+  const defaultSnippets = [
+    { title: '挨拶定型', body: 'いつもご覧いただきありがとうございます。\n' },
+    { title: 'note結び', body: '\n---\n最後までお読みいただきありがとうございました！スキやフォローをいただけると励みになります。' },
+    { title: '区切り線', body: '\n----------------------------------------\n' }
+  ];
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2000);
+  }
+
+  function updateStats() {
+    const val = textarea.value;
+    document.getElementById('charCount').textContent = val.length;
+    document.getElementById('noSpaceCount').textContent = val.replace(/\s/g, '').length;
+    document.getElementById('lineCount').textContent = val === '' ? 0 : val.split(/\r\n|\r|\n/).length;
+  }
+
+  function transformText(text, type) {
+    switch (type) {
+      case 'removeBreaks':
+        return text.replace(/\r?\n/g, '');
+      case 'cleanEmptyLines':
+        return text.replace(/(\r?\n){3,}/g, '\n\n');
+      case 'cleanSpaces':
+        return text.split(/\r?\n/).map(line => line.trim().replace(/[ \t ]{2,}/g, ' ')).join('\n');
+      case 'toHalfWidth':
+        return text.replace(/[！-～]/g, s => String.fromCharCode(s.charCodeAt(0) - 0xFEE0)).replace(/ /g, ' ');
+      case 'dedupeLines':
+        const seen = new Set();
+        return text.split(/\r?\n/).filter(line => {
+          if (line.trim() === '') return true;
+          if (seen.has(line)) return false;
+          seen.add(line);
+          return true;
+        }).join('\n');
+      case 'addBullets':
+        return text.split(/\r?\n/).map(line => line.trim() ? (line.startsWith('・') ? line : '・' + line) : line).join('\n');
+      default:
+        return text;
+    }
+  }
+
+  function applySingle(type) {
+    if (!textarea.value) {
+      showToast('テキストを入力してください');
+      return;
+    }
+    pushHistory(textarea.value);
+    textarea.value = transformText(textarea.value, type);
+    updateStats();
+    showToast('整形を適用しました');
+  }
+
+  function runMacro() {
+    if (!textarea.value) {
+      showToast('テキストを入力してください');
+      return;
+    }
+    pushHistory(textarea.value);
+    let text = textarea.value;
+    const order = ['cleanSpaces', 'toHalfWidth', 'removeBreaks', 'cleanEmptyLines', 'dedupeLines', 'addBullets'];
+    order.forEach(key => {
+      if (document.getElementById('m_' + key).checked) {
+        text = transformText(text, key);
+      }
+    });
+    textarea.value = text;
+    updateStats();
+    showToast('一括マクロを実行しました！');
+  }
+
+  function presetBlog() {
+    document.getElementById('m_removeBreaks').checked = false;
+    document.getElementById('m_cleanSpaces').checked = true;
+    document.getElementById('m_toHalfWidth').checked = true;
+    document.getElementById('m_cleanEmptyLines').checked = true;
+    document.getElementById('m_dedupeLines').checked = false;
+    document.getElementById('m_addBullets').checked = false;
+    runMacro();
+  }
+
+  function presetList() {
+    document.getElementById('m_removeBreaks').checked = false;
+    document.getElementById('m_cleanSpaces').checked = true;
+    document.getElementById('m_toHalfWidth').checked = true;
+    document.getElementById('m_cleanEmptyLines').checked = true;
+    document.getElementById('m_dedupeLines').checked = true;
+    document.getElementById('m_addBullets').checked = true;
+    runMacro();
+  }
+
+  function clearText() {
+    if (!textarea.value) return;
+    pushHistory(textarea.value);
+    textarea.value = '';
+    updateStats();
+    showToast('クリアしました');
+  }
+
+  function copyText() {
+    if (!textarea.value) {
+      showToast('コピーするテキストがありません');
+      return;
+    }
+    navigator.clipboard.writeText(textarea.value).then(() => {
+      showToast('クリップボードにコピーしました！');
+    });
+  }
+
+  function downloadFile(ext) {
+    if (!textarea.value) {
+      showToast('保存するテキストがありません');
+      return;
+    }
+    const bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
+    const blob = new Blob([bom, textarea.value], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const now = new Date().toISOString().slice(0,19).replace(/[-:T]/g, '');
+    a.href = url;
+    a.download = `cleaned_text_${now}.${ext}`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast(`${ext.toUpperCase()}ファイルを保存しました`);
+  }
+
+  // 定型文パレット管理
+  function getSnippets() {
+    const raw = localStorage.getItem(STORAGE_SNIPPETS);
+    return raw ? JSON.parse(raw) : defaultSnippets;
+  }
+
+  function renderSnippets() {
+    const list = getSnippets();
+    const container = document.getElementById('snippetList');
+    container.innerHTML = '';
+    list.forEach((item, idx) => {
+      const chip = document.createElement('div');
+      chip.className = 'snippet-chip';
+      chip.innerHTML = `
+        <button class="insert-btn" onclick="insertSnippet(${idx})">＋ ${escapeHtml(item.title)}</button>
+        <button class="del-btn" onclick="deleteSnippet(${idx})" title="削除">×</button>
+      `;
+      container.appendChild(chip);
+    });
+  }
+
+  function addSnippet() {
+    const title = document.getElementById('snippetTitle').value.trim();
+    const body = document.getElementById('snippetBody').value;
+    if (!title || !body) {
+      showToast('ボタン名とテキストの両方を入力してください');
+      return;
+    }
+    const list = getSnippets();
+    list.push({ title, body });
+    localStorage.setItem(STORAGE_SNIPPETS, JSON.stringify(list));
+    document.getElementById('snippetTitle').value = '';
+    document.getElementById('snippetBody').value = '';
+    renderSnippets();
+    showToast('定型文を追加しました');
+  }
+
+  function insertSnippet(idx) {
+    const list = getSnippets();
+    const item = list[idx];
+    if (!item) return;
+    pushHistory(textarea.value);
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const val = textarea.value;
+    textarea.value = val.substring(0, start) + item.body + val.substring(end);
+    updateStats();
+    showToast(`「${item.title}」を挿入しました`);
+  }
+
+  function deleteSnippet(idx) {
+    const list = getSnippets();
+    list.splice(idx, 1);
+    localStorage.setItem(STORAGE_SNIPPETS, JSON.stringify(list));
+    renderSnippets();
+  }
+
+  // 履歴管理
+  function getHistory() {
+    const raw = localStorage.getItem(STORAGE_HISTORY);
+    return raw ? JSON.parse(raw) : [];
+  }
+
+  function pushHistory(text) {
+    if (!text.trim()) return;
+    let hist = getHistory();
+    if (hist.length > 0 && hist[0].text === text) return;
+    const time = new Date().toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    hist.unshift({ time, text });
+    if (hist.length > 10) hist = hist.slice(0, 10);
+    localStorage.setItem(STORAGE_HISTORY, JSON.stringify(hist));
+    renderHistory();
+  }
+
+  function renderHistory() {
+    const hist = getHistory();
+    const container = document.getElementById('historyList');
+    if (hist.length === 0) {
+      container.innerHTML = '<div style="font-size:12.5px; color:var(--muted);">整形を実行するとここに履歴が自動保存されます</div>';
+      return;
+    }
+    container.innerHTML = '';
+    hist.forEach((h, idx) => {
+      const row = document.createElement('div');
+      row.className = 'history-item';
+      row.innerHTML = `
+        <span style="font-weight:700; color:var(--text);">${h.time}</span>
+        <span class="history-preview">${escapeHtml(h.text.replace(/\n/g, ' '))}</span>
+        <button class="btn-secondary" style="padding:4px 10px; font-size:12px;" onclick="restoreHistory(${idx})">復元</button>
+      `;
+      container.appendChild(row);
+    });
+  }
+
+  function restoreHistory(idx) {
+    const hist = getHistory();
+    if (hist[idx]) {
+      textarea.value = hist[idx].text;
+      updateStats();
+      showToast('履歴から復元しました');
+    }
+  }
+
+  function clearHistory() {
+    localStorage.removeItem(STORAGE_HISTORY);
+    renderHistory();
+    showToast('履歴をクリアしました');
+  }
+
+  function escapeHtml(str) {
+    return str.replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+  }
+
+  renderSnippets();
+  renderHistory();
+</script>
+</body>
+</html>
