@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>テキスト一括整形・クリーニングツール（体験版）</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --pro: #d97706;
+      --pro-bg: #fffbeb;
+      --pro-border: #fcd34d;
+      --text: #1e293b;
+      --muted: #64748b;
+      --border: #e2e8f0;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Hiragino Sans", "Noto Sans JP", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 20px 16px 60px;
+    }
+    .container { max-width: 860px; margin: 0 auto; }
+    header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    .badge {
+      display: inline-block;
+      background: #e2e8f0;
+      color: #334155;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 999px;
+      margin-bottom: 8px;
+    }
+    h1 { font-size: 22px; font-weight: 800; margin-bottom: 6px; }
+    .subtitle { font-size: 14px; color: var(--muted); }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+      margin-bottom: 18px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+    .section-title {
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    textarea {
+      width: 100%;
+      height: 220px;
+      padding: 14px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 15px;
+      line-height: 1.6;
+      resize: vertical;
+      font-family: inherit;
+    }
+    textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
+    }
+    .stats-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 10px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .stats-nums span { font-weight: 700; color: var(--text); margin-right: 12px; }
+    .action-group { display: flex; gap: 8px; }
+
+    button {
+      cursor: pointer;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 9px 14px;
+      transition: all 0.15s;
+      font-family: inherit;
+    }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-primary:hover { background: var(--primary-hover); }
+    .btn-secondary { background: #f1f5f9; color: var(--text); border: 1px solid var(--border); }
+    .btn-secondary:hover { background: #e2e8f0; }
+    .btn-danger { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+    .btn-danger:hover { background: #fee2e2; }
+
+    .grid-btns {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+      gap: 10px;
+    }
+    .tool-btn {
+      background: #fff;
+      border: 1px solid var(--border);
+      color: var(--text);
+      text-align: left;
+      padding: 11px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .tool-btn:hover {
+      border-color: var(--primary);
+      background: #eff6ff;
+    }
+    .tool-btn strong { font-size: 13.5px; }
+    .tool-btn small { font-size: 11px; color: var(--muted); font-weight: 400; }
+
+    /* PROエリア（体験版ロック表示） */
+    .pro-card {
+      background: var(--pro-bg);
+      border: 1px solid var(--pro-border);
+    }
+    .pro-badge {
+      background: var(--pro);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+    .pro-btn {
+      background: #ffffff;
+      border: 1px solid var(--pro-border);
+      color: #92400e;
+      text-align: left;
+      padding: 11px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      position: relative;
+    }
+    .pro-btn:hover {
+      background: #fef3c7;
+      border-color: var(--pro);
+    }
+    .pro-btn strong { font-size: 13.5px; }
+    .pro-btn small { font-size: 11px; color: #b45309; font-weight: 400; }
+
+    /* トースト通知 */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #1e293b;
+      color: #fff;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+      z-index: 100;
+    }
+    .toast.show { opacity: 1; }
+
+    /* 体験版制限モーダル */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.55);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 200;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-box {
+      background: #fff;
+      max-width: 440px;
+      width: 100%;
+      border-radius: 14px;
+      padding: 24px;
+      text-align: center;
+      box-shadow: 0 20px 25px -5px rgba(0,0,0,0.15);
+    }
+    .modal-icon {
+      font-size: 32px;
+      margin-bottom: 10px;
+    }
+    .modal-title {
+      font-size: 18px;
+      font-weight: 800;
+      margin-bottom: 8px;
+      color: #0f172a;
+    }
+    .modal-desc {
+      font-size: 14px;
+      color: #475569;
+      margin-bottom: 18px;
+      line-height: 1.6;
+    }
+    .modal-link-btn {
+      display: block;
+      width: 100%;
+      background: var(--pro);
+      color: #fff;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 14px;
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      transition: background 0.15s;
+    }
+    .modal-link-btn:hover { background: #b45309; }
+    .modal-url-box {
+      background: #f1f5f9;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 8px;
+      font-size: 12px;
+      color: #334155;
+      word-break: break-all;
+      margin-bottom: 14px;
+    }
+    .modal-close {
+      background: #e2e8f0;
+      color: #334155;
+      width: 100%;
+      padding: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <span class="badge">無料体験版（基本整形無制限）</span>
+    <h1>テキスト一括整形・クリーニングツール</h1>
+    <p class="subtitle">コピペ崩れ・不要な改行・全角半角のバラつきをワンクリックで即修正</p>
+  </header>
+
+  <div class="card">
+    <div class="section-title">
+      <span>整形するテキスト</span>
+      <button class="btn-secondary" onclick="undoLast()" id="undoBtn" disabled>1つ前に戻す</button>
+    </div>
+    <textarea id="inputText" placeholder="ここにWeb・PDF・AIからコピーした文章を貼り付けてください..." oninput="updateStats()"></textarea>
+    <div class="stats-bar">
+      <div class="stats-nums">
+        文字数: <span id="charCount">0</span>
+        空白除き: <span id="noSpaceCount">0</span>
+        行数: <span id="lineCount">0</span>
+      </div>
+      <div class="action-group">
+        <button class="btn-danger" onclick="clearText()">クリア</button>
+        <button class="btn-primary" onclick="copyText()">結果をコピー</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-title">
+      <span>基本の単発整形（体験版で無料利用可能）</span>
+    </div>
+    <div class="grid-btns">
+      <button class="tool-btn" onclick="applyFormat('removeBreaks')">
+        <strong>不要な改行をすべて削除</strong>
+        <small>PDFやWebコピペの途中改行を連結</small>
+      </button>
+      <button class="tool-btn" onclick="applyFormat('cleanEmptyLines')">
+        <strong>連続する空行を1行に整理</strong>
+        <small>スカスカになった行間をスッキリ整形</small>
+      </button>
+      <button class="tool-btn" onclick="applyFormat('cleanSpaces')">
+        <strong>連続スペース・行頭空白削除</strong>
+        <small>インデント崩れや余分な空白を除去</small>
+      </button>
+      <button class="tool-btn" onclick="applyFormat('toHalfWidth')">
+        <strong>英数字・記号を半角に統一</strong>
+        <small>全角のＡＢＣ・１２３を半角へ変換</small>
+      </button>
+      <button class="tool-btn" onclick="applyFormat('dedupeLines')">
+        <strong>重複している行を一括削除</strong>
+        <small>リストやタグの被りを自動で整理</small>
+      </button>
+      <button class="tool-btn" onclick="applyFormat('addBullets')">
+        <strong>各行の先頭に「・」を付与</strong>
+        <small>メモ書きを一瞬で箇条書きリスト化</small>
+      </button>
+    </div>
+  </div>
+
+  <div class="card pro-card">
+    <div class="section-title">
+      <span>実務時短・PRO機能（完全版限定）</span>
+      <span class="pro-badge">完全版で解放</span>
+    </div>
+    <div class="grid-btns">
+      <button class="pro-btn" onclick="openTrialModal('一括プリセット（マクロ）実行')">
+        <strong>🔒 一括プリセット実行（カスタム保存）</strong>
+        <small>改行削除＋半角統一＋空白整理を1ボタンで同時実行</small>
+      </button>
+      <button class="pro-btn" onclick="openTrialModal('定型文・署名ワンクリック挿入パレット')">
+        <strong>🔒 定型文・署名ワンクリック挿入</strong>
+        <small>よく使う挨拶・ハッシュタグ・署名を登録して即挿入</small>
+      </button>
+      <button class="pro-btn" onclick="openTrialModal('変換履歴10件の自動保存＆復元')">
+        <strong>🔒 過去10件の変換履歴から復元</strong>
+        <small>作業途中の状態を自動バックアップ＆ワンクリック復元</small>
+      </button>
+      <button class="pro-btn" onclick="openTrialModal('TXT / CSVファイル直接ダウンロード')">
+        <strong>🔒 TXT / CSVファイルとして保存</strong>
+        <small>整形済みテキストをそのままファイル出力</small>
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast">コピーしました</div>
+
+<!-- 体験版制限モーダル -->
+<div class="modal-overlay" id="trialModal" onclick="closeTrialModal(event)">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="modal-icon">🔒</div>
+    <div class="modal-title">体験版では利用できません</div>
+    <p class="modal-desc">
+      「<strong id="modalFeatureName"></strong>」は製品版（完全版）限定の機能です。<br>
+      以下のnote記事から製品版URLにアクセスすると、すべての時短機能が制限なしでご利用いただけます。
+    </p>
+    <a href="#" id="noteArticleLink" target="_blank" rel="noopener noreferrer" class="modal-link-btn">
+      ▶ note記事で製品版（完全版）を見る
+    </a>
+    <div class="modal-url-box" id="noteArticleUrlText"></div>
+    <button class="modal-close" onclick="closeTrialModal()">閉じる（体験版を続ける）</button>
+  </div>
+</div>
+
+<script>
+  // ★ここに公開した第5弾のnote記事URLを設定してください
+  const NOTE_ARTICLE_URL = "https://note.com/brisk_roses6251";
+
+  const textarea = document.getElementById('inputText');
+  let singleUndoBuffer = null;
+
+  document.getElementById('noteArticleLink').href = NOTE_ARTICLE_URL;
+  document.getElementById('noteArticleUrlText').textContent = NOTE_ARTICLE_URL;
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2000);
+  }
+
+  function updateStats() {
+    const val = textarea.value;
+    document.getElementById('charCount').textContent = val.length;
+    document.getElementById('noSpaceCount').textContent = val.replace(/\s/g, '').length;
+    document.getElementById('lineCount').textContent = val === '' ? 0 : val.split(/\r\n|\r|\n/).length;
+  }
+
+  function saveUndo() {
+    singleUndoBuffer = textarea.value;
+    document.getElementById('undoBtn').disabled = false;
+  }
+
+  function undoLast() {
+    if (singleUndoBuffer !== null) {
+      textarea.value = singleUndoBuffer;
+      singleUndoBuffer = null;
+      document.getElementById('undoBtn').disabled = true;
+      updateStats();
+      showToast('1つ前の状態に戻しました');
+    }
+  }
+
+  function applyFormat(type) {
+    if (!textarea.value) {
+      showToast('テキストを入力してください');
+      return;
+    }
+    saveUndo();
+    let text = textarea.value;
+
+    switch (type) {
+      case 'removeBreaks':
+        text = text.replace(/\r?\n/g, '');
+        break;
+      case 'cleanEmptyLines':
+        text = text.replace(/(\r?\n){3,}/g, '\n\n');
+        break;
+      case 'cleanSpaces':
+        text = text.split(/\r?\n/).map(line => line.trim().replace(/[ \t ]{2,}/g, ' ')).join('\n');
+        break;
+      case 'toHalfWidth':
+        text = text.replace(/[！-～]/g, s => String.fromCharCode(s.charCodeAt(0) - 0xFEE0)).replace(/ /g, ' ');
+        break;
+      case 'dedupeLines':
+        const seen = new Set();
+        text = text.split(/\r?\n/).filter(line => {
+          if (line.trim() === '') return true;
+          if (seen.has(line)) return false;
+          seen.add(line);
+          return true;
+        }).join('\n');
+        break;
+      case 'addBullets':
+        text = text.split(/\r?\n/).map(line => line.trim() ? (line.startsWith('・') ? line : '・' + line) : line).join('\n');
+        break;
+    }
+
+    textarea.value = text;
+    updateStats();
+    showToast('整形を適用しました');
+  }
+
+  function clearText() {
+    if (!textarea.value) return;
+    saveUndo();
+    textarea.value = '';
+    updateStats();
+    showToast('クリアしました');
+  }
+
+  function copyText() {
+    if (!textarea.value) {
+      showToast('コピーするテキストがありません');
+      return;
+    }
+    navigator.clipboard.writeText(textarea.value).then(() => {
+      showToast('クリップボードにコピーしました！');
+    });
+  }
+
+  function openTrialModal(featureName) {
+    document.getElementById('modalFeatureName').textContent = featureName;
+    document.getElementById('trialModal').classList.add('open');
+  }
+
+  function closeTrialModal(e) {
+    if (!e || e.target === document.getElementById('trialModal')) {
+      document.getElementById('trialModal').classList.remove('open');
+    }
+  }
+</script>
+</body>
+</html>
